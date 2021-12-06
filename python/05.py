@@ -54,7 +54,8 @@ def render_line(line, floor):
 def get_intersections(with_diagonal = False):
   floor_size = 1000
   floor = [[0 for y in range(0,floor_size)] for x in range(0,floor_size)]
-  lines = [line for line in get_lines(indata) if is_straight(line) or is_diagonal(line, with_diagonal)]
+  # lines = [line for line in get_lines(indata) if is_straight(line) or is_diagonal(line, with_diagonal)]
+  lines = [line for line in get_lines(indata)]
 
   for line in lines:
     render_line(line, floor)
