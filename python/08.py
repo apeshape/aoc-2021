@@ -12,131 +12,25 @@
 with open("08.input", "r") as f:
   input = f.read().split('\n')
 
-segcount = {
-  'tt': 8,
-  'tl': 6,
-  'tr': 8,
-  'm': 7,
-  'bl': 4,
-  'br': 9,
-  'bb': 7
-}
-
 def matches_all(test, sample):
   return len(set(test).intersection(sample)) == len(test)
 
 def get_decoder(samples):
-  decoded = {}
-  samples_done = []
-  numberstypes = {
-    7: [8],
-    6: [0, 6, 9],
-    5: [2, 3, 5],
-    4: [4],
-    3: [7],
-    2: [1]
+  decoded = {
+    1: [sample for sample in samples if len(sample) == 2][0],
+    4: [sample for sample in samples if len(sample) == 4][0],
+    7: [sample for sample in samples if len(sample) == 3][0],
+    8: [sample for sample in samples if len(sample) == 7][0],
   }
 
-  while len(samples_done) < 10:
-    for sample in [s for s in samples if s not in samples_done]:
-      if sample in samples_done:
-        continue
-      numtypes = numberstypes[len(sample)]
+  decoded[6] = [sample for sample in samples if len(sample) == 6 and len(set(decoded[1]).intersection(sample)) < 2][0]
+  decoded[3] = [sample for sample in samples if len(sample) == 5 and len(set(decoded[1]).intersection(sample)) == 2][0]
+  decoded[9] = [sample for sample in samples if len(sample) == 6 and len(set(decoded[3]).intersection(sample)) == 5][0]
+  decoded[0] = [sample for sample in samples if len(sample) == 6 and sample != decoded[9] and sample != decoded[6]][0]
+  decoded[5] = [sample for sample in samples if len(sample) == 5 and len(set(decoded[6]).intersection(sample)) == 5][0]
+  decoded[2] = [sample for sample in samples if len(sample) == 5 and len(set(decoded[6]).intersection(sample)) == 4 and len(set(decoded[4]).intersection(sample)) == 2][0]
 
-      if(len(numtypes) == 1):
-        decoded[numtypes[0]] = sample
-        samples_done.append(sample)
-    
-    for sample in [s for s in samples if s not in samples_done]:
-      if sample in samples_done:
-        continue
-
-      #  get [0, 6, 9],
-      if len(sample) == 6:
-        if len(set(decoded[1]).intersection(sample)) < 2:
-          decoded[6] = sample
-          samples_done.append(sample)
-          continue
-        if 3 in decoded.keys():
-          if len(set(decoded[3]).intersection(sample)) == 5:
-            decoded[9] = sample
-            samples_done.append(sample)
-            continue
-          if len(set(decoded[3]).intersection(sample)) == 4:
-            decoded[0] = sample
-            samples_done.append(sample)
-            continue
-      # get [2, 3, 5],
-      if len(sample) == 5:
-        if len(set(decoded[1]).intersection(sample)) == 2:
-          decoded[3] = sample
-          samples_done.append(sample)
-          continue
-        if 6 in decoded.keys():
-          if len(set(decoded[6]).intersection(sample)) == 5:
-            decoded[5] = sample
-            samples_done.append(sample)
-            continue
-          if len(set(decoded[6]).intersection(sample)) == 4:
-            decoded[2] = sample
-            samples_done.append(sample)
-            continue
-  return decoded
-
-def get_segments(samples):
-  counts = {
-    'a': 0,
-    'b': 0,
-    'c': 0,
-    'd': 0,
-    'e': 0,
-    'f': 0,
-    'g': 0
-  }
-
-  segments = {}
-  for sample in samples:
-    for c in list(sample):
-      counts[c] += 1
-  
-  decoded_samples = get_decoder(samples)
-
-  for key, count in counts.items():
-    if count == 4:
-      segments['bl'] = key
-    if count == 6:
-      segments['tl'] = key
-    if count == 9:
-      segments['br'] = key
-    if count == 8:
-      if key in decoded_samples[4]:
-        segments['tr'] = key
-      else:
-        segments['tt'] = key
-    if count == 7:
-      if key in decoded_samples[0]:
-        segments['bb'] = key
-      else:
-        segments['m'] = key
-    
-  return segments
-
-bytes = ['1110111', '0010010', '1011101', '1011011', '0111010', '1101011', '1101111', '1010010', '1111111', '1111011']
-segkeys = ['tt', 'tl', 'tr', 'm', 'bl', 'br', 'bb']
-
-def get_numbers_with_segments(numstr, segments):
-  mask = ''
-  for segkey in segkeys:
-    mask += segments[segkey]
-
-  byte = list('0000000')
-  for idx, m in enumerate(mask):
-    if(m in numstr):
-      byte[idx] = "1"
-
-
-  num = bytes.index("".join(byte))
-  return str(num)
+  return {''.join(sorted(v)): k for k, v in decoded.items()}
 
 def part1():
   count = 0
@@ -155,15 +49,18 @@ def part2():
   total = 0
   for line in input:
     patternsline, outputline = line.split(' | ')
-
-    s = get_segments(patternsline.split())
+    decoder = get_decoder(patternsline.split())
+    
     out = ""
     for output in outputline.split():
-      out += get_numbers_with_segments(output, s)
-    # print('out:', out)
+      out += str(decoder[''.join(sorted(output))])
     total += int(out)
 
+
+    # print(out)
+
   return total
+
 
 print(part1())
 print(part2())
