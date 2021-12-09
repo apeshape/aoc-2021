@@ -56,9 +56,6 @@ def part2():
       out += str(decoder[''.join(sorted(output))])
     total += int(out)
 
-
-    # print(out)
-
   return total
 
 
