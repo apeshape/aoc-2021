@@ -48,11 +48,9 @@ def part1():
     for x, col in enumerate(row):
       neighbours = find_neighbours((x, y))
 
-      if all([int(col) < int(hmap[n[1]][n[0]]) for n in neighbours if n != '-']):
+      if all([int(col) < int(get_value(n)) for n in neighbours if n != '-']):
         lowest.append(int(get_value((x, y))) + 1)
-        # points = get_basin((x, y), [(x, y)])
-        # basin_lengths.append(len(points))
-  print(sum(lowest))
+  return sum(lowest)
 
 def part2():
   basin_lengths = []
@@ -60,13 +58,12 @@ def part2():
     for x, col in enumerate(row):
       neighbours = find_neighbours((x, y))
 
-      if all([int(col) < int(hmap[n[1]][n[0]]) for n in neighbours if n != '-']):
+      if all([int(col) < int(get_value(n)) for n in neighbours if n != '-']):
         points = get_basin((x, y), [(x, y)])
         basin_lengths.append(len(points))
   basins = sorted(basin_lengths)
   total = math.prod(basins[-3:])
   return total
 
-part1()
+print(part1())
 print(part2())
-
