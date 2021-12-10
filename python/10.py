@@ -1,4 +1,5 @@
 import math
+from functools import reduce
 
 input = """[({(<(())[]>[[{[]{<()<>>
 [(()[<>])]({[<{<<[]>>(
@@ -14,22 +15,10 @@ input = """[({(<(())[]>[[{[]{<()<>>
 with open("10.input", "r") as f:
   input = f.read().split('\n')
 
-pairs = {
-  '{': '}',
-  '<': '>',
-  '(': ')',
-  '[': ']'
-}
+pairs = {'{':'}','<':'>','(':')','[':']'}
 
 def get_invalid_chars(line):
-
-  values = {
-    ')': 3,
-    ']': 57,
-    '}': 1197,
-    '>': 25137
-  }
-
+  values = {')': 3,']': 57,'}': 1197,'>': 25137}
   opened = []
   for c in list(line):
     if c in pairs.keys():
@@ -38,7 +27,6 @@ def get_invalid_chars(line):
       closing = opened.pop()
       if c != pairs[closing]:
         return values[c]
-
   return 0
 
 def get_matches(line):
@@ -48,34 +36,23 @@ def get_matches(line):
       opened.append(c)
     if c in pairs.values():
       opened.pop()
-
-  opened.reverse()
-  matches = [pairs[c] for c in opened]
+  matches = [pairs[c] for c in reversed(opened)]
   return matches
+
+def sum_score(acc, curr):
+  acc *= 5
+  acc += curr
+  return acc
 
 def calculate_score(matches):
   score_table = [')', ']', '}', '>']
-  total = 0
-  scores = [score_table.index(c) + 1 for c in matches]
-  for s in scores:
-    total *= 5
-    total += s
-  
-  return total
+  return reduce(sum_score, [score_table.index(c) + 1 for c in matches], 0)
 
 def part1():
-  sum = 0
-  for line in input:
-    sum += get_invalid_chars(line)
-  return sum
+  return sum([get_invalid_chars(line) for line in input])
 
 def part2():
-  incomplete = [line for line in input if get_invalid_chars(line) == 0]
-  scores = []
-  for tocomplete in incomplete:
-    matches = get_matches(tocomplete)
-    scores.append(calculate_score(matches))
-
+  scores = [calculate_score(get_matches(match)) for match in [line for line in input if get_invalid_chars(line) == 0]]
   return sorted(scores)[int(len(scores) / 2)]
 
 print(part1())
