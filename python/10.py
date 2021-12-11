@@ -9,7 +9,7 @@ def parse_line(line, pairs = {'{':'}','<':'>','(':')','[':']'}, values = {')': 3
     if c in pairs.keys():
       opened.append(c)
     elif c != pairs[opened.pop()]:
-        return values[c]
+      return values[c]
   return [pairs[c] for c in reversed(opened)]
   
 def calculate_score(matches):
