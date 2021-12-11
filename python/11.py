@@ -1,3 +1,5 @@
+import time
+
 # input = """5483143223
 # 2745854711
 # 5264556173
@@ -20,23 +22,10 @@ input = """1326253315
 6562513118
 4824541522""".split('\n')
 
-# input = """5483
-# 2745
-# 5264
-# 6141""".split('\n')
-
-# input = """11111
-# 19991
-# 19191
-# 19991
-# 11111""".split('\n')
-
-grid = [list(map(int,list(row))) for row in input]
-
-def get_value(point):
+def get_value(point, grid):
   return grid[point[0]][point[1]]
 
-def find_neighbours(point):
+def find_neighbours(point, grid):
   dirs = [(0,-1), (1,-1), (1,0), (1,1), (0,1), (-1, 1), (-1,0), (-1, -1)]
   neighbours = []
   for dir in dirs:
@@ -51,56 +40,39 @@ def find_neighbours(point):
   
   return neighbours
 
-def print_grid():
+def get_colored(n):
+  if n == 0:
+    return '\033[1;31m ' + str(n)
+  return '\033[1;32m ' + str(n)
+
+def print_grid(grid):
+  print(chr(27)+'[2j')
+  print('\033c')
+  print('\x1bc')
   for line in grid:
-    print(line)
+    strline = [get_colored(n) for n in line]
+    print(''.join(strline))
   
   print('-' * len(grid[0]))
 
-def light_up(to_light, lit):
-  for squid in to_light:
-    grid[squid[0]][squid[1]] = 0
-    lit.append((squid[0], squid[1]))
-
-    # print('TO LIGHT:', to_light)
-
-    # neighbours = [n for n in find_neighbours(squid) if n != '-' and n not in to_light and n not in lit]
-    neighbours = [n for n in find_neighbours(squid) if n != '-']
-    # print('neighbours', [(n, get_value(n)) for n in neighbours])
-
-    tl = []
-    for n in neighbours:
-      grid[n[0]][n[1]] += 1
-      val = get_value(n)
-      if val > 9:
-        # print('light up', n, val)
-        # light_up([n], lit)
-        tl.append(n)
-
-    if len(tl) > 0:
-      light_up(tl, lit)
-
-def flash(squid, has_flashed):
+def flash(squid, has_flashed, grid):
   if squid in has_flashed:
     return has_flashed
   has_flashed.append(squid)
-  neighbours = [n for n in find_neighbours(squid) if n != '-']
+  neighbours = [n for n in find_neighbours(squid, grid) if n != '-']
 
   for n in neighbours:
     grid[n[0]][n[1]] += 1
-    # if n == (2,2):
-    #   print('2,2', get_value(n))
-    if get_value(n) > 9:
-      # print('FLASH NEIGHBOUR', n, get_value(n), has_flashed)
-      flash(n, has_flashed)
+    if get_value(n, grid) > 9:
+      flash(n, has_flashed, grid)
   
   return has_flashed
   
-def reset_flashed(flashed):
+def reset_flashed(flashed, grid):
   for f in flashed:
     grid[f[0]][f[1]] = 0
 
-def do_turn():
+def do_turn(grid):
   has_flashed = []
   flashed = []
   for x, char in enumerate(grid[0]):
@@ -109,32 +81,33 @@ def do_turn():
 
       val = grid[x][y]
       if val > 9:
-        flashed = flash((x,y), has_flashed)
-  print(flashed)
-  reset_flashed(flashed)
+        flashed = flash((x,y), has_flashed, grid)
+  reset_flashed(flashed, grid)
 
   return len(flashed)
-  # light_up(to_light, lit)
 
-def all_flashed():
+def all_flashed(grid):
   return all([r == 0 for sub in grid for r in sub])
 
 
-# print_grid()
-# total = 0
-# for turn in range(0,195):
-#   print('TURN {t} ---->'.format(t=turn + 1))
-#   total += do_turn()
-# print_grid()
-# print(total)
+def part1():
+  grid = [list(map(int,list(row))) for row in input]
+  total = 0
+  for _ in range(0,100):
+    total += do_turn(grid)
+    print_grid(grid)
+    time.sleep(0.2)
+  # print_grid(grid)
+  return total
 
-turns = 0
-while not all_flashed():
-  do_turn()
-  turns += 1
+def part2():
+  grid = [list(map(int,list(row))) for row in input]
+  turns = 0
+  while not all_flashed(grid):
+    do_turn(grid)
+    turns += 1
 
-print('total turns', turns)
-print_grid()
+  return turns
 
-
-# print(lit)
+print(part1())
+print(part2())
