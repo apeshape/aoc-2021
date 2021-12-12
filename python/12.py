@@ -1,10 +1,10 @@
-# input = """start-A
-# start-b
-# A-c
-# A-b
-# b-d
-# A-end
-# b-end""".split('\n')
+input = """start-A
+start-b
+A-c
+A-b
+b-d
+A-end
+b-end""".split('\n')
 
 # input = """fs-end
 # he-DX
@@ -68,21 +68,35 @@ def get_duplicate_small(str):
     counts[cave] += 1
   return counts
 
-all_steps = []
-def next_cave(start, steps = 'start'):
+def next_cave(start, steps, all_paths, test_small):
   if(start == 'end'):
-    all_steps.append(steps)
-    return
+    all_paths.append(steps)
+    return all_paths
 
   to_visit = caves[start]
   for v in to_visit:
     if v != 'start':
       next_step = steps + ',' + v
       if v.isupper():
-        next_cave(v, next_step)
-      elif next_step.count(v) < 3 and list(get_duplicate_small(steps).values()).count(2) < 2:
-        next_cave(v, next_step)
+        next_cave(v, next_step, all_paths, test_small)
+      elif test_small(v, steps, next_step):
+        next_cave(v, next_step, all_paths, test_small)
 
-next_cave('start')
+def test_part1(v, steps, next_step):
+  return next_step.count(v) < 2
+def test_part2(v, steps, next_step):
+  return next_step.count(v) < 3 and list(get_duplicate_small(steps).values()).count(2) < 2
 
-print(len(all_steps))
+def part1():
+  all_paths = []
+  next_cave('start', 'start', all_paths, test_part1)
+  return len(all_paths)
+  
+def part2():
+  all_paths = []
+  next_cave('start', 'start', all_paths, test_part2)
+  return len(all_paths)
+
+print(part1())
+print(part2())
+# print(len(all_steps))
