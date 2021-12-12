@@ -79,8 +79,7 @@ def do_turn(grid):
     for y, row in enumerate(grid):
       grid[x][y] += 1
 
-      val = grid[x][y]
-      if val > 9:
+      if get_value((x,y), grid) > 9:
         flashed = flash((x,y), has_flashed, grid)
   reset_flashed(flashed, grid)
 
@@ -95,9 +94,8 @@ def part1():
   total = 0
   for _ in range(0,100):
     total += do_turn(grid)
-    print_grid(grid)
-    time.sleep(0.2)
-  # print_grid(grid)
+    # print_grid(grid)
+    # time.sleep(0.2)
   return total
 
 def part2():
