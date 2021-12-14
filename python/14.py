@@ -124,7 +124,6 @@ NH -> P"""
 template, instructions_str = input.split('\n\n')
 instructions = instructions_str.split('\n')
 instructions_dict = {instr.split(' -> ')[0]:instr.split(' -> ')[1] for instr in instructions}
-pair_count = {k:0 for k,v in instructions_dict.items()}
 
 def get_template_pairs(tmpl):
   pairs = []
@@ -133,9 +132,11 @@ def get_template_pairs(tmpl):
       pairs.append(element + tmpl[idx + 1])
   return pairs
 
-tmpl2 = template
-for pair in get_template_pairs(tmpl2):
-  pair_count[pair] += 1
+def get_initial_pair_count():
+  pair_count = {k:0 for k,v in instructions_dict.items()}
+  for pair in get_template_pairs(template):
+    pair_count[pair] += 1
+  return pair_count
 
 
 def print_pc(pair_count):
@@ -155,10 +156,6 @@ def get_paircount(prev_pc):
     letter_count[instructions_dict[p]] = c
   return pc
 
-pc = pair_count.copy()
-for _ in range(10):
-  pc = get_paircount(pc)
-
 def get_letter_count_in_pc(pc):
   letters = set(instructions_dict.values())
   count = {k:0 for k in letters}
@@ -168,8 +165,24 @@ def get_letter_count_in_pc(pc):
         count[l] += c
   return count
 
-print_pc(pc)
-lc = get_letter_count_in_pc(pc)
-lc[template[-1]] += 1
+def get_totals(turns):
+  pc = get_initial_pair_count()
+  for _ in range(turns):
+    pc = get_paircount(pc)
+  
+  lc = get_letter_count_in_pc(pc)
+  lc[template[-1]] += 1
+  return lc
 
-print(max(lc.values()) - min(lc.values()))
+
+def part1():
+  lc = get_totals(10)
+  print('PART 1', max(lc.values()) - min(lc.values()))
+
+def part2():
+  lc = get_totals(40)
+  print('PART 2', max(lc.values()) - min(lc.values()))
+
+
+part1()
+part2()
