@@ -101,7 +101,7 @@ def part1():
       if test < highest:
         highest = test
   
-  print(highest)
+  print(abs(highest))
 
 
 def part2():
@@ -116,8 +116,5 @@ def part2():
 
   print(len(hit_velocities))
 
-# part1()
+part1()
 part2()
-"""
-2313
-"""
